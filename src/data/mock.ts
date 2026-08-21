@@ -145,7 +145,7 @@ export const LODGING_PLANS: LodgingPlan[] = [
 
 export const SELECT_PRODUCTS: SelectProduct[] = [
   { id: "tea", name: "南園嚴選茶葉", origin: "南園" },
-  { id: "plum", name: "永靖風土梅實", origin: "永靖" },
+  { id: "plum", name: "永靖青梅", origin: "永靖" },
   { id: "coffee", name: "靜屋咖啡豆", origin: "中山" },
   { id: "craft", name: "工藝器物", origin: "The One Select" },
   { id: "book", name: "年度出版／年刊", origin: "The One Select" },
