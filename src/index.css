@@ -15,6 +15,8 @@
   --color-gold-soft: #f0dba5;
   --color-wine: #7b0e0e;
   --color-wine-deep: #4a0808;
+  --color-haze: #4a6b7a;
+  --color-haze-deep: #2f4a56;
   --color-paper: #ffffff;
   --color-line: rgba(32, 30, 25, 0.12);
 }
@@ -157,6 +159,13 @@ button {
     radial-gradient(circle at 100% 50%, #fbf5e7 12px, transparent 13px),
     linear-gradient(#fffdf6, #f7edd4);
   box-shadow: 0 18px 40px -22px rgba(36, 66, 47, 0.45);
+}
+
+.member-card-blue {
+  background:
+    radial-gradient(circle at 85% -10%, rgba(255, 255, 255, 0.18), transparent 55%),
+    linear-gradient(135deg, #5d8494 0%, #4a6b7a 55%, #2f4a56 100%);
+  box-shadow: 0 22px 40px -18px rgba(74, 107, 122, 0.55), 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .member-card {

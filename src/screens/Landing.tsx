@@ -21,6 +21,7 @@ export function Landing() {
         <p className="mt-6 max-w-2xl text-[20px] leading-9 text-ink-soft">
           影響力消費，不是把錢換成已經完成的商品。它是此刻就把支持交給時間，讓一件尚未存在的作品，被允許慢慢發生。
         </p>
+        <p className="mt-4 text-[16px] text-ink-soft">知遇卡 · 知音卡 · 知己卡　核心是支持理念完成，附加禮遇是加碼。</p>
         <button type="button" onClick={() => go("selectTier")} className="btn btn-moss mt-10 w-fit">
           開始選擇會員卡
         </button>
@@ -95,7 +96,7 @@ export function Landing() {
 
       <section className="py-12 text-center">
         <p className="mx-auto max-w-xl text-[18px] leading-8 text-ink-soft">
-          附加禮遇是加碼，不是核心。折扣與生日心意可以留下；真正留下來的原因，是看見支持的事，真的發生了。
+          附加禮遇會隨卡別逐級累加，但不是核心。真正留下來的原因，是看見支持的事，真的發生了。
         </p>
         <button type="button" onClick={() => go("selectTier")} className="btn btn-moss mt-8">
           開始選擇會員卡

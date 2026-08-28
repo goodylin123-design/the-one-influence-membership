@@ -42,7 +42,9 @@ export function VoucherTicket({
         <div className="hidden w-px bg-gold/50 md:block" />
 
         <div className="flex-1">
-          <p className="text-[15px] font-bold tracking-[0.12em] text-rust">未來提貨券 · 非點數</p>
+          <p className="text-[15px] font-bold tracking-[0.12em] text-rust">
+            未來提貨券 · {project.qualityTier} · 非點數
+          </p>
           <h3 className="mt-2 font-serif text-[30px] font-bold text-moss">{project.name}</h3>
           <p className="mt-3 max-w-md text-[17px] leading-8 text-ink-soft">{project.description}</p>
           <div className="mt-6 grid grid-cols-2 gap-5 text-[16px] md:grid-cols-3">

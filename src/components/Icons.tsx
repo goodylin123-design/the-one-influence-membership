@@ -25,6 +25,15 @@ export function IconBottle({ className = "h-10 w-10" }: { className?: string }) 
   );
 }
 
+export function IconLock({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}
+
 export function projectIcon(category: string) {
   if (category === "音樂") return IconConcert;
   if (category === "飲食") return IconJar;

@@ -1,6 +1,7 @@
 export type Screen =
   | "landing"
   | "selectTier"
+  | "invite"
   | "selectProjects"
   | "voucherReveal"
   | "dashboard"
@@ -8,37 +9,27 @@ export type Screen =
 
 export type VoucherStatus = "locked" | "in_progress" | "redeemable";
 
+export type QualityTier = "標準" | "進階" | "最高";
+
+export type TierId = "zhiyu" | "zhiyin" | "zhiji";
+
 export interface MembershipTier {
-  id: string;
+  id: TierId;
   name: string;
   annualFee: number;
-  maxProjects: number;
-  maxSelectProducts: number;
-  nights: number;
+  maxProjects: number | null;
+  projectTierAllowed: QualityTier[];
+  invitationOnly: boolean;
   tagline: string;
   description: string;
   perks: string[];
 }
 
-export interface AnnualBenefit {
+export interface AddOnBenefit {
   id: string;
   name: string;
-  zhiyin: string;
-  zhiji: string;
-  upgraded: boolean;
-}
-
-export interface LodgingPlan {
-  id: string;
-  tierId: string;
-  label: string;
-  detail: string;
-}
-
-export interface SelectProduct {
-  id: string;
-  name: string;
-  origin: string;
+  description: string;
+  minTierId: TierId;
 }
 
 export interface ProjectStage {
@@ -51,6 +42,7 @@ export interface SupportProject {
   id: string;
   name: string;
   category: "音樂" | "飲食" | "工藝";
+  qualityTier: QualityTier;
   maturityYears: number;
   maturityLabel: string;
   description: string;
@@ -73,6 +65,7 @@ export interface Member {
   id: string;
   name: string;
   tierId: string | null;
+  invitationVerified: boolean;
   lockedVoucherIds: string[];
 }
 

@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { DEMO_MEMBER, LODGING_PLANS, PROJECTS, SELECT_PRODUCTS, TIERS } from "../data/mock";
+import { DEMO_MEMBER, PROJECTS, TIERS, projectAllowed } from "../data/mock";
 import { addYears, deriveVoucherState, makeVoucherNumber } from "../lib/format";
 import type {
   FutureVoucher,
@@ -21,10 +21,8 @@ interface AppState {
   screen: Screen;
   member: Member;
   selectedTierId: string | null;
+  invitationVerified: boolean;
   selectedProjectIds: string[];
-  arrangeByTheOne: boolean;
-  lodgingPlanId: string | null;
-  selectProductIds: string[];
   vouchers: FutureVoucher[];
   simulatedNow: string;
   lockModalOpen: boolean;
@@ -34,14 +32,11 @@ interface AppState {
 interface AppContextValue extends AppState {
   selectedTier: MembershipTier | null;
   canLock: boolean;
-  lodgingLabel: string;
-  productLabels: string[];
   go: (screen: Screen) => void;
   selectTier: (tierId: string) => void;
+  continueFromTier: () => void;
+  verifyInvitation: (code: string) => boolean;
   toggleProject: (projectId: string) => void;
-  setArrangeByTheOne: (value: boolean) => void;
-  setLodgingPlanId: (id: string) => void;
-  toggleSelectProduct: (id: string) => void;
   openLockModal: () => void;
   closeLockModal: () => void;
   confirmLock: () => void;
@@ -53,22 +48,12 @@ interface AppContextValue extends AppState {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-function defaultLodging(tierId: string) {
-  return LODGING_PLANS.find((p) => p.tierId === tierId && p.id.endsWith("split"))?.id ?? null;
-}
-
-function defaultProducts(count: number) {
-  return SELECT_PRODUCTS.slice(0, count).map((p) => p.id);
-}
-
 const initialState = (): AppState => ({
   screen: "landing",
   member: { ...DEMO_MEMBER },
   selectedTierId: null,
+  invitationVerified: false,
   selectedProjectIds: [],
-  arrangeByTheOne: false,
-  lodgingPlanId: null,
-  selectProductIds: [],
   vouchers: [],
   simulatedNow: new Date().toISOString(),
   lockModalOpen: false,
@@ -83,91 +68,57 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [state.selectedTierId],
   );
 
-  const canLock = useMemo(() => {
-    if (!selectedTier) return false;
-    if (state.arrangeByTheOne) return true;
-    const productsOk = state.selectProductIds.length === selectedTier.maxSelectProducts;
-    return Boolean(state.lodgingPlanId) && productsOk;
-  }, [selectedTier, state.arrangeByTheOne, state.lodgingPlanId, state.selectProductIds]);
-
-  const lodgingLabel = useMemo(() => {
-    const id = state.lodgingPlanId ?? (selectedTier ? defaultLodging(selectedTier.id) : null);
-    return LODGING_PLANS.find((p) => p.id === id)?.label ?? "尚未選擇";
-  }, [state.lodgingPlanId, selectedTier]);
-
-  const productLabels = useMemo(() => {
-    const ids =
-      state.selectProductIds.length > 0
-        ? state.selectProductIds
-        : selectedTier
-          ? defaultProducts(selectedTier.maxSelectProducts)
-          : [];
-    return ids
-      .map((id) => SELECT_PRODUCTS.find((p) => p.id === id)?.name)
-      .filter((n): n is string => Boolean(n));
-  }, [state.selectProductIds, selectedTier]);
+  const canLock = Boolean(selectedTier && state.selectedProjectIds.length > 0);
 
   const go = useCallback((screen: Screen) => {
     setState((s) => ({ ...s, screen }));
   }, []);
 
   const selectTier = useCallback((tierId: string) => {
-    const tier = TIERS.find((t) => t.id === tierId);
     setState((s) => ({
       ...s,
       selectedTierId: tierId,
-      selectedProjectIds: s.selectedProjectIds.slice(0, tier?.maxProjects ?? 1),
-      lodgingPlanId: s.selectedTierId === tierId ? s.lodgingPlanId : null,
-      selectProductIds: s.selectedTierId === tierId ? s.selectProductIds : [],
-      arrangeByTheOne: s.selectedTierId === tierId ? s.arrangeByTheOne : false,
+      invitationVerified: false,
+      selectedProjectIds: [],
     }));
+  }, []);
+
+  const continueFromTier = useCallback(() => {
+    setState((s) => {
+      const tier = TIERS.find((t) => t.id === s.selectedTierId);
+      if (!tier) return s;
+      if (tier.invitationOnly && !s.invitationVerified) {
+        return { ...s, screen: "invite" };
+      }
+      return { ...s, screen: "selectProjects" };
+    });
+  }, []);
+
+  const verifyInvitation = useCallback((code: string) => {
+    if (!code.trim()) return false;
+    setState((s) => ({
+      ...s,
+      invitationVerified: true,
+      member: { ...s.member, invitationVerified: true },
+      screen: "selectProjects",
+    }));
+    return true;
   }, []);
 
   const toggleProject = useCallback((projectId: string) => {
     setState((s) => {
       const tier = TIERS.find((t) => t.id === s.selectedTierId);
-      const max = tier?.maxProjects ?? 1;
+      const project = PROJECTS.find((p) => p.id === projectId);
+      if (!tier || !project) return s;
+      if (!projectAllowed(tier.projectTierAllowed, project.qualityTier)) return s;
+
       const has = s.selectedProjectIds.includes(projectId);
       if (has) {
         return { ...s, selectedProjectIds: s.selectedProjectIds.filter((id) => id !== projectId) };
       }
-      if (s.selectedProjectIds.length >= max) {
-        return s;
-      }
+      const max = tier.maxProjects;
+      if (max != null && s.selectedProjectIds.length >= max) return s;
       return { ...s, selectedProjectIds: [...s.selectedProjectIds, projectId] };
-    });
-  }, []);
-
-  const setArrangeByTheOne = useCallback((value: boolean) => {
-    setState((s) => {
-      const tier = TIERS.find((t) => t.id === s.selectedTierId);
-      if (value && tier) {
-        return {
-          ...s,
-          arrangeByTheOne: true,
-          lodgingPlanId: defaultLodging(tier.id),
-          selectProductIds: defaultProducts(tier.maxSelectProducts),
-        };
-      }
-      return { ...s, arrangeByTheOne: false };
-    });
-  }, []);
-
-  const setLodgingPlanId = useCallback((id: string) => {
-    setState((s) => ({ ...s, lodgingPlanId: id, arrangeByTheOne: false }));
-  }, []);
-
-  const toggleSelectProduct = useCallback((id: string) => {
-    setState((s) => {
-      const tier = TIERS.find((t) => t.id === s.selectedTierId);
-      const max = tier?.maxSelectProducts ?? 1;
-      const has = s.selectProductIds.includes(id);
-      const next = has
-        ? s.selectProductIds.filter((x) => x !== id)
-        : s.selectProductIds.length >= max
-          ? s.selectProductIds
-          : [...s.selectProductIds, id];
-      return { ...s, selectProductIds: next, arrangeByTheOne: false };
     });
   }, []);
 
@@ -206,6 +157,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         member: {
           ...s.member,
           tierId: s.selectedTierId,
+          invitationVerified: s.invitationVerified,
           lockedVoucherIds: vouchers.map((v) => v.id),
         },
         screen: "voucherReveal",
@@ -231,7 +183,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         (v, i) => v.currentStageIndex !== prev[i].currentStageIndex || v.status !== prev[i].status,
       );
       const changed =
-        changedList.find((v) => v.projectId === "tofu") ?? changedList[0] ?? next[0];
+        changedList.find((v) => v.projectId === "plumwine") ??
+        changedList.find((v) => v.projectId === "tofu") ??
+        changedList[0] ??
+        next[0];
       const prevMatch = prev.find((v) => v.id === changed?.id) ?? prev[0];
       const snapshot: VerifySnapshot | null = changed
         ? {
@@ -287,14 +242,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...state,
       selectedTier,
       canLock,
-      lodgingLabel,
-      productLabels,
       go,
       selectTier,
+      continueFromTier,
+      verifyInvitation,
       toggleProject,
-      setArrangeByTheOne,
-      setLodgingPlanId,
-      toggleSelectProduct,
       openLockModal,
       closeLockModal,
       confirmLock,
@@ -307,14 +259,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       state,
       selectedTier,
       canLock,
-      lodgingLabel,
-      productLabels,
       go,
       selectTier,
+      continueFromTier,
+      verifyInvitation,
       toggleProject,
-      setArrangeByTheOne,
-      setLodgingPlanId,
-      toggleSelectProduct,
       openLockModal,
       closeLockModal,
       confirmLock,

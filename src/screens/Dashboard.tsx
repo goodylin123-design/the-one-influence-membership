@@ -1,27 +1,30 @@
-import { ANNUAL_BENEFITS } from "../data/mock";
+import { ADD_ON_BENEFITS, addOnsForTier, TIER_RANK } from "../data/mock";
 import { useApp } from "../context/AppContext";
 import { VoucherTicket } from "../components/VoucherTicket";
 import { distanceLabel, formatDate, formatFee, statusLabel } from "../lib/format";
+import type { TierId } from "../types";
+
+function cardShell(id: string | undefined) {
+  if (id === "zhiyu") return "member-card-blue";
+  if (id === "zhiji") return "member-card-wine";
+  return "member-card";
+}
+
+const TIER_NAME: Record<TierId, string> = {
+  zhiyu: "知遇卡起",
+  zhiyin: "知音卡起",
+  zhiji: "知己卡專屬",
+};
 
 export function Dashboard() {
-  const {
-    member,
-    selectedTier,
-    vouchers,
-    getProject,
-    simulatedNow,
-    advanceTime,
-    openVerify,
-    lodgingLabel,
-    productLabels,
-    arrangeByTheOne,
-  } = useApp();
-  const isZhiji = selectedTier?.id === "zhiji";
+  const { member, selectedTier, vouchers, getProject, simulatedNow, advanceTime, openVerify } = useApp();
+  const tierId = (selectedTier?.id ?? "zhiyu") as TierId;
+  const addons = addOnsForTier(tierId);
 
   return (
     <div className="page-in pb-24">
       <div className="flex flex-col gap-8 md:flex-row md:items-center">
-        <div className={`${isZhiji ? "member-card-wine" : "member-card"} relative h-[210px] w-full max-w-[360px] overflow-hidden rounded-[22px] px-7 py-6 text-[#F6EFDD]`}>
+        <div className={`${cardShell(selectedTier?.id)} relative h-[210px] w-full max-w-[360px] overflow-hidden rounded-[22px] px-7 py-6 text-[#F6EFDD]`}>
           <div className="flex items-start justify-between">
             <span className="font-serif text-[17px] font-black tracking-[0.16em]">THE ONE</span>
             <span className="h-[30px] w-[42px] rounded-md bg-linear-to-br from-gold to-[#b9843a]" />
@@ -56,38 +59,14 @@ export function Dashboard() {
       </div>
 
       <div className="mt-12 mb-5 flex items-end justify-between">
-        <h2 className="font-serif text-[28px] font-extrabold text-moss">本年度支持內容</h2>
-        <p className="text-[15px] text-ink-soft">{arrangeByTheOne ? "交給 The One 安排" : "自行組合"}</p>
-      </div>
-      <div className="panel mb-4 grid gap-4 px-6 py-5 md:grid-cols-2">
-        <p className="text-[16px]">
-          <span className="font-bold text-moss">住宿　</span>
-          {lodgingLabel}
-        </p>
-        <p className="text-[16px]">
-          <span className="font-bold text-moss">Select 85 折　</span>
-          {productLabels.join("、")}
-        </p>
-      </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        {ANNUAL_BENEFITS.map((item) => (
-          <div key={item.id} className="panel px-5 py-4">
-            <p className="font-serif text-[18px] font-bold">{item.name}</p>
-            <p className="mt-2 text-[15px] leading-7 text-ink-soft">
-              {isZhiji ? item.zhiji : item.zhiyin}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-12 mb-5 flex items-end justify-between">
-        <h2 className="font-serif text-[28px] font-extrabold text-moss">已鎖定的未來提貨券</h2>
+        <div>
+          <p className="text-[14px] font-bold tracking-[0.16em] text-moss">核心｜支持理念完成</p>
+          <h2 className="mt-1 font-serif text-[28px] font-extrabold text-moss">已鎖定的未來提貨券</h2>
+        </div>
         <p className="text-[15px] text-ink-soft">共 {vouchers.length} 張</p>
       </div>
       {vouchers.length === 0 ? (
-        <div className="panel px-6 py-8 text-[16px] text-ink-soft">
-          本次未另鎖未來提貨券。十項年度支持已保留。若要體驗「核對」與時間發酵，可重新體驗並加選封藏豆腐乳或熟成梅酒。
-        </div>
+        <div className="panel px-6 py-8 text-[16px] text-ink-soft">尚未鎖定年度支持計畫。</div>
       ) : (
         <div className="space-y-8">
           {vouchers.map((voucher) => {
@@ -127,6 +106,40 @@ export function Dashboard() {
           })}
         </div>
       )}
+
+      <div className="mt-16 border-t border-dashed border-gold/40 pt-10">
+        <p className="text-[14px] font-bold tracking-[0.16em] text-ink-soft">附加禮遇｜加碼，不是加入的理由</p>
+        <h2 className="mt-1 font-serif text-[24px] font-extrabold text-ink-soft">依卡別逐級累加</h2>
+        <p className="mt-2 max-w-2xl text-[16px] leading-7 text-ink-soft">
+          課程、餐飲、選品、住宿與旅行相關禮遇會隨卡別加上去。留下來的原因，仍是看見支持的事真的發生了。
+        </p>
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {addons.map((item) => {
+            const exclusive = item.minTierId === tierId;
+            return (
+              <div
+                key={item.id}
+                className={`rounded-[16px] border px-5 py-4 ${
+                  exclusive ? "border-line bg-cream-deep/70" : "border-transparent bg-cream-deep/40"
+                }`}
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="font-serif text-[18px] font-bold text-ink-soft">{item.name}</p>
+                  <span className="text-[12px] font-bold tracking-[0.08em] text-ink-soft/80">
+                    {TIER_NAME[item.minTierId]}
+                  </span>
+                </div>
+                <p className="mt-2 text-[15px] leading-7 text-ink-soft">{item.description}</p>
+              </div>
+            );
+          })}
+        </div>
+        {tierId !== "zhiji" && (
+          <p className="mt-4 text-[14px] text-ink-soft">
+            更高卡別還有 {ADD_ON_BENEFITS.filter((b) => TIER_RANK[b.minTierId] > TIER_RANK[tierId]).length} 項禮遇未展開。
+          </p>
+        )}
+      </div>
     </div>
   );
 }
