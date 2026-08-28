@@ -1,4 +1,4 @@
-import { ADD_ON_BENEFITS, addOnsForTier, TIER_RANK } from "../data/mock";
+import { ADD_ON_BENEFITS, addOnsForTier, TIER_RANK, TIERS } from "../data/mock";
 import { useApp } from "../context/AppContext";
 import { VoucherTicket } from "../components/VoucherTicket";
 import { distanceLabel, formatDate, formatFee, statusLabel } from "../lib/format";
@@ -10,9 +10,9 @@ function cardShell(id: string | undefined) {
   return "member-card";
 }
 
-const TIER_NAME: Record<TierId, string> = {
-  zhiyu: "知遇卡起",
-  zhiyin: "知音卡起",
+const GROUP_TITLE: Record<TierId, string> = {
+  zhiyu: "知遇卡內容",
+  zhiyin: "知音卡新增",
   zhiji: "知己卡專屬",
 };
 
@@ -113,23 +113,21 @@ export function Dashboard() {
         <p className="mt-2 max-w-2xl text-[16px] leading-7 text-ink-soft">
           課程、餐飲、選品、住宿與旅行相關禮遇會隨卡別加上去。留下來的原因，仍是看見支持的事真的發生了。
         </p>
-        <div className="mt-6 grid gap-3 md:grid-cols-2">
-          {addons.map((item) => {
-            const exclusive = item.minTierId === tierId;
+        <div className="mt-6 space-y-8">
+          {TIERS.filter((t) => TIER_RANK[t.id] <= TIER_RANK[tierId]).map((group) => {
+            const items = addons.filter((b) => b.minTierId === group.id);
+            if (items.length === 0) return null;
             return (
-              <div
-                key={item.id}
-                className={`rounded-[16px] border px-5 py-4 ${
-                  exclusive ? "border-line bg-cream-deep/70" : "border-transparent bg-cream-deep/40"
-                }`}
-              >
-                <div className="flex items-baseline justify-between gap-3">
-                  <p className="font-serif text-[18px] font-bold text-ink-soft">{item.name}</p>
-                  <span className="text-[12px] font-bold tracking-[0.08em] text-ink-soft/80">
-                    {TIER_NAME[item.minTierId]}
-                  </span>
+              <div key={group.id}>
+                <p className="mb-3 text-[13px] font-bold tracking-[0.14em] text-ink-soft">{GROUP_TITLE[group.id]}</p>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {items.map((item) => (
+                    <div key={item.id} className="rounded-[16px] bg-cream-deep/50 px-5 py-4">
+                      <p className="font-serif text-[18px] font-bold text-ink-soft">{item.name}</p>
+                      <p className="mt-2 text-[15px] leading-7 text-ink-soft">{item.description}</p>
+                    </div>
+                  ))}
                 </div>
-                <p className="mt-2 text-[15px] leading-7 text-ink-soft">{item.description}</p>
               </div>
             );
           })}

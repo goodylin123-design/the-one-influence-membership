@@ -2,6 +2,7 @@ import { TIERS, maxProjectsLabel } from "../data/mock";
 import { useApp } from "../context/AppContext";
 import { formatFee } from "../lib/format";
 import { IconLock } from "../components/Icons";
+import { AddOnTable } from "../components/AddOnTable";
 import type { TierId } from "../types";
 
 function cardClass(id: TierId) {
@@ -87,6 +88,17 @@ export function SelectTier() {
           );
         })}
       </div>
+
+      <section className="mt-14 border-t border-dashed border-gold/40 pt-10">
+        <p className="text-[14px] font-bold tracking-[0.16em] text-ink-soft">附加禮遇｜加碼，不是加入的理由</p>
+        <h2 className="mt-1 font-serif text-[24px] font-extrabold text-ink-soft">逐級累加對照</h2>
+        <p className="mt-2 max-w-2xl text-[16px] leading-7 text-ink-soft">
+          知音卡含知遇卡內容，知己卡含知遇＋知音卡內容。✓ 代表沿用前一級，— 代表本卡沒有。
+        </p>
+        <div className="panel mt-5 px-5 py-3">
+          <AddOnTable compact />
+        </div>
+      </section>
 
       <div className="mt-10 flex justify-end">
         <button
