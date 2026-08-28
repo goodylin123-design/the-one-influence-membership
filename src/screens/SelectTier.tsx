@@ -33,7 +33,7 @@ export function SelectTier() {
         三張卡，三種深度的支持
       </h1>
       <p className="mt-4 max-w-2xl text-[18px] leading-8 text-ink-soft">
-        差異在每年可支持的計畫數量與規格。核心是支持理念完成、拿到未來提貨券；附加禮遇會隨卡別累加，但不是加入的理由。
+        差異在每年可支持的計畫數量與規格。核心是支持理念完成、拿到未來提貨券；附加禮遇依卡別逐級加上去。
       </p>
 
       <div className="mt-10 grid gap-5 lg:grid-cols-3">
@@ -90,13 +90,13 @@ export function SelectTier() {
       </div>
 
       <section className="mt-14 border-t border-dashed border-gold/40 pt-10">
-        <p className="text-[14px] font-bold tracking-[0.16em] text-ink-soft">附加禮遇｜加碼，不是加入的理由</p>
-        <h2 className="mt-1 font-serif text-[24px] font-extrabold text-ink-soft">逐級累加對照</h2>
-        <p className="mt-2 max-w-2xl text-[16px] leading-7 text-ink-soft">
-          知音卡含知遇卡內容，知己卡含知遇＋知音卡內容。✓ 代表沿用前一級，— 代表本卡沒有。
+        <p className="eyebrow">附加禮遇</p>
+        <h2 className="mt-2 font-serif text-[32px] font-extrabold text-moss">三張卡逐級累加</h2>
+        <p className="mt-3 max-w-2xl text-[17px] leading-8 text-ink-soft">
+          色點＝這張卡享有，金圈＝尚未包含。知音含知遇全部，知己再往上加。
         </p>
-        <div className="panel mt-5 px-5 py-3">
-          <AddOnTable compact />
+        <div className="mt-7">
+          <AddOnTable />
         </div>
       </section>
 

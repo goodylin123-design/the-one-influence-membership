@@ -1,6 +1,7 @@
 import { ADD_ON_BENEFITS, addOnsForTier, TIER_RANK, TIERS } from "../data/mock";
 import { useApp } from "../context/AppContext";
 import { VoucherTicket } from "../components/VoucherTicket";
+import { benefitIcon } from "../components/Icons";
 import { distanceLabel, formatDate, formatFee, statusLabel } from "../lib/format";
 import type { TierId } from "../types";
 
@@ -108,33 +109,49 @@ export function Dashboard() {
       )}
 
       <div className="mt-16 border-t border-dashed border-gold/40 pt-10">
-        <p className="text-[14px] font-bold tracking-[0.16em] text-ink-soft">附加禮遇｜加碼，不是加入的理由</p>
-        <h2 className="mt-1 font-serif text-[24px] font-extrabold text-ink-soft">依卡別逐級累加</h2>
-        <p className="mt-2 max-w-2xl text-[16px] leading-7 text-ink-soft">
-          課程、餐飲、選品、住宿與旅行相關禮遇會隨卡別加上去。留下來的原因，仍是看見支持的事真的發生了。
+        <p className="eyebrow">附加禮遇</p>
+        <h2 className="mt-2 font-serif text-[32px] font-extrabold text-moss">依卡別逐級累加</h2>
+        <p className="mt-3 max-w-2xl text-[17px] leading-8 text-ink-soft">
+          知音含知遇全部，知己再往上加。色帶對應來源卡別。
         </p>
-        <div className="mt-6 space-y-8">
+        <div className="mt-8 space-y-6">
           {TIERS.filter((t) => TIER_RANK[t.id] <= TIER_RANK[tierId]).map((group) => {
             const items = addons.filter((b) => b.minTierId === group.id);
             if (items.length === 0) return null;
+            const badge =
+              group.id === "zhiyu" ? "bg-haze" : group.id === "zhiji" ? "bg-wine" : "bg-moss";
             return (
-              <div key={group.id}>
-                <p className="mb-3 text-[13px] font-bold tracking-[0.14em] text-ink-soft">{GROUP_TITLE[group.id]}</p>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {items.map((item) => (
-                    <div key={item.id} className="rounded-[16px] bg-cream-deep/50 px-5 py-4">
-                      <p className="font-serif text-[18px] font-bold text-ink-soft">{item.name}</p>
-                      <p className="mt-2 text-[15px] leading-7 text-ink-soft">{item.description}</p>
-                    </div>
-                  ))}
+              <div key={group.id} className="overflow-hidden rounded-[20px] shadow-[0_18px_40px_-22px_rgba(36,66,47,0.45)]">
+                <div className={`${cardShell(group.id)} px-6 py-4`}>
+                  <p className="font-serif text-[20px] font-bold tracking-[0.08em] text-[#F6EFDD]">
+                    {GROUP_TITLE[group.id]}
+                  </p>
+                </div>
+                <div className="grid gap-px bg-line md:grid-cols-2">
+                  {items.map((item) => {
+                    const Icon = benefitIcon(item.id);
+                    return (
+                      <div key={item.id} className="flex items-start gap-4 bg-white px-6 py-5">
+                        <span
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-cream ${badge}`}
+                        >
+                          <Icon className="h-6 w-6" />
+                        </span>
+                        <div>
+                          <p className="font-serif text-[20px] font-bold text-ink">{item.name}</p>
+                          <p className="mt-1 text-[16px] leading-7 text-ink-soft">{item.description}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
           })}
         </div>
         {tierId !== "zhiji" && (
-          <p className="mt-4 text-[14px] text-ink-soft">
-            更高卡別還有 {ADD_ON_BENEFITS.filter((b) => TIER_RANK[b.minTierId] > TIER_RANK[tierId]).length} 項禮遇未展開。
+          <p className="mt-6 text-[16px] text-ink">
+            更高卡別還有 {ADD_ON_BENEFITS.filter((b) => TIER_RANK[b.minTierId] > TIER_RANK[tierId]).length} 項禮遇。
           </p>
         )}
       </div>
