@@ -36,7 +36,28 @@ export function IconLock({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-export function projectIcon(category: string) {
+export function IconHall({ className = "h-10 w-10" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" aria-hidden>
+      <path d="M6 34h36M10 34V22l14-10 14 10v12" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M18 34v-8h12v8M24 16v-4" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function IconLunch({ className = "h-10 w-10" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" aria-hidden>
+      <path d="M10 30c2 6 8 8 14 8s12-2 14-8H10Z" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M14 22c2-6 6-10 10-10s8 4 10 10" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M24 8v4" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+export function projectIcon(category: string, id?: string) {
+  if (id === "hall") return IconHall;
+  if (id === "lunch") return IconLunch;
   if (category === "音樂") return IconConcert;
   if (category === "飲食") return IconJar;
   return IconBottle;

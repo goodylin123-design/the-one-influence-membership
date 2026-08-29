@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { DEMO_MEMBER, PROJECTS, TIERS, projectAllowed } from "../data/mock";
+import { DEMO_MEMBER, PROJECTS, TIERS, isFunded, projectAllowed } from "../data/mock";
 import { addYears, deriveVoucherState, makeVoucherNumber } from "../lib/format";
 import type {
   FutureVoucher,
@@ -116,6 +116,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (has) {
         return { ...s, selectedProjectIds: s.selectedProjectIds.filter((id) => id !== projectId) };
       }
+      if (isFunded(project)) return s;
       const max = tier.maxProjects;
       if (max != null && s.selectedProjectIds.length >= max) return s;
       return { ...s, selectedProjectIds: [...s.selectedProjectIds, projectId] };

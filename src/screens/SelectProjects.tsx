@@ -1,7 +1,8 @@
-import { PROJECTS, maxProjectsLabel, neededTierFor, projectAllowed } from "../data/mock";
+import { PROJECTS, fundPercent, isFunded, maxProjectsLabel, neededTierFor, projectAllowed } from "../data/mock";
 import { useApp } from "../context/AppContext";
 import { projectIcon } from "../components/Icons";
 import { LockModal } from "../components/LockModal";
+import { formatWan } from "../lib/format";
 import type { QualityTier } from "../types";
 
 const PROJECT_BANDS: Record<string, string> = {
@@ -29,23 +30,26 @@ export function SelectProjects() {
       <p className="mt-4 max-w-3xl text-[18px] leading-8 text-ink-soft">
         {selectedTier?.name}
         可支持{allowed.join("、")}規格，
-        {maxProjectsLabel(max)}。這是核心：支持理念完成，對應未來提貨券。附加禮遇稍後在儀表板分開呈現。
+        {maxProjectsLabel(max)}。這是核心：支持理念完成，對應未來提貨券。每項計畫有募集目標，額滿即停止募集。
       </p>
 
-      <div className="mt-10 grid gap-5 md:grid-cols-3">
+      <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {PROJECTS.map((project) => {
           const on = selectedProjectIds.includes(project.id);
           const ok = projectAllowed(allowed, project.qualityTier);
+          const funded = isFunded(project);
           const full = ok && !on && atCap;
-          const Icon = projectIcon(project.category);
+          const blocked = !ok || full || (funded && !on);
+          const pct = fundPercent(project);
+          const Icon = projectIcon(project.category, project.id);
           return (
             <button
               key={project.id}
               type="button"
-              disabled={!ok || full}
+              disabled={blocked}
               onClick={() => toggleProject(project.id)}
               className={`panel overflow-hidden text-left transition duration-300 disabled:opacity-45 ${
-                on ? "ring-4 ring-rust/70" : ok ? "hover:-translate-y-1" : ""
+                on ? "ring-4 ring-rust/70" : blocked ? "" : "hover:-translate-y-1"
               }`}
             >
               <div className={`flex h-24 items-end justify-between bg-linear-to-br ${PROJECT_BANDS[project.category]} px-5 py-4`}>
@@ -63,8 +67,26 @@ export function SelectProjects() {
                 </div>
                 <h3 className="mt-3 font-serif text-[24px] font-bold">{project.name}</h3>
                 <p className="mt-3 text-[16px] leading-7 text-ink-soft">{project.description}</p>
+                <div className="mt-5">
+                  <div className="flex items-center justify-between text-[14px] font-bold">
+                    <span className={funded ? "text-wine" : "text-moss"}>
+                      {funded ? "額滿，停止募集" : `目標 ${formatWan(project.targetAmount)}`}
+                    </span>
+                    <span className="text-ink-soft">
+                      {formatWan(project.raisedAmount)} · {pct}%
+                    </span>
+                  </div>
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-cream-deep">
+                    <div
+                      className={`h-full rounded-full ${funded ? "bg-wine" : "bg-rust"}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
                 <p className="mt-5 text-[15px] font-bold text-moss">
-                  {!ok
+                  {funded && !on
+                    ? "額滿，停止募集"
+                    : !ok
                     ? `需${neededTierFor(project.qualityTier)}`
                     : full
                       ? "已達本卡項目上限"

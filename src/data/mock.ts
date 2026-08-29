@@ -91,6 +91,8 @@ export const PROJECTS: SupportProject[] = [
     qualityTier: "標準",
     maturityYears: 2,
     maturityLabel: "2 年後兌現",
+    targetAmount: 200_000,
+    raisedAmount: 120_000,
     description: "當季豆腐乳入陶甕封藏。第一年靜置，第二年開甕。憑券領取限量一罈。",
     longDescription:
       "以傳統陶甕封藏當季豆腐乳。第一年只做一件事：等待。第二年開甕，會員憑未來提貨券領取編號罈。這不是預購現貨，而是把兩年的時間，寫進一罈食物裡。",
@@ -119,6 +121,8 @@ export const PROJECTS: SupportProject[] = [
     qualityTier: "進階",
     maturityYears: 1,
     maturityLabel: "1 年後兌現",
+    targetAmount: 1_000_000,
+    raisedAmount: 1_000_000,
     description: "一場不對外售票的室內樂夜。曲目依當年駐地藝術家而定，一年後兌現席位。",
     longDescription:
       "The One 為會員籌辦一場不進入公開售票的室內樂夜。場地、曲目與藝術家依當年駐地計畫而定——你此刻鎖定的，是一年後那一個被保留的席位，而不是一張可以轉賣的票。",
@@ -142,6 +146,8 @@ export const PROJECTS: SupportProject[] = [
     qualityTier: "最高",
     maturityYears: 5,
     maturityLabel: "5 年後兌現",
+    targetAmount: 500_000,
+    raisedAmount: 180_000,
     description: "與工藝師重現近乎失傳的浸漬技法。青梅入酒，熟成五年後裝瓶。",
     longDescription:
       "與工藝師一起重現幾乎要消失的浸漬技法。青梅入酒之後，需要五年才能成為一瓶。你鎖定的是編號瓶，以及這門手藝被再做一次的機會——五年後兌現，不是遙遠的口頭承諾。",
@@ -173,7 +179,81 @@ export const PROJECTS: SupportProject[] = [
       },
     ],
   },
+  {
+    id: "lunch",
+    name: "小朋友的營養午餐美學再造",
+    category: "飲食",
+    qualityTier: "標準",
+    maturityYears: 5,
+    maturityLabel: "5 年後兌現",
+    targetAmount: 20_000_000,
+    raisedAmount: 4_200_000,
+    description: "不只讓孩子吃得營養，也重新思考每天陪伴孩子的餐盤、材質、食物形式與用餐環境。",
+    longDescription:
+      "The One 集結設計師、料理人、學校與製造端共同實驗，再邀請認同這件事的異數人支持它發生。你鎖定的不是一張折扣，而是五年後那一餐被重新做過的證明。",
+    stages: [
+      {
+        stageIndex: 0,
+        label: "盤點與實驗啟動",
+        description: "設計師、料理人、學校與製造端開始對齊：孩子每天碰到的那一餐，哪些該被重做。",
+      },
+      {
+        stageIndex: 1,
+        label: "校園試作",
+        description: "第一批餐盤、食材形式與用餐環境在合作學校實驗中。限量支持名額仍為你保留。",
+      },
+      {
+        stageIndex: 2,
+        label: "材質與餐盤定案",
+        description: "器物與供餐形式收斂。每天陪伴孩子的材質，開始變成可被複製的方法。",
+      },
+      {
+        stageIndex: 3,
+        label: "擴散與調整",
+        description: "更多餐桌用上這套方法。計畫依現場回饋微調，五年之約仍在路上。",
+      },
+      {
+        stageIndex: 4,
+        label: "可兌現 · 成果可核對",
+        description: "五年實驗到期。憑券參與成果核對——這件事被允許慢慢發生，並且真的發生了。",
+      },
+    ],
+  },
+  {
+    id: "hall",
+    name: "大地音樂廳計畫",
+    category: "音樂",
+    qualityTier: "進階",
+    maturityYears: 2,
+    maturityLabel: "2 年後兌現",
+    targetAmount: 5_000_000,
+    raisedAmount: 4_750_000,
+    description: "讓音樂離開制式舞台，進入土地、建築與自然；支持音樂家，也重新創造人與音樂相遇的方式。",
+    longDescription:
+      "這不是蓋另一座音樂廳再賣票。它是把土地、建築與自然當成樂器的外延，兩年後兌現的是一場被保留的相遇，而不是公開售票的席次。",
+    stages: [
+      {
+        stageIndex: 0,
+        label: "聲音與土地實驗",
+        description: "選址、建築與自然聲場測試中。音樂家開始進場，你的名額已先留下。",
+      },
+      {
+        stageIndex: 1,
+        label: "可兌現 · 場次舉行",
+        description: "離開制式舞台的場次已成形。請於兌現日憑券前往——這張券對應的是那場相遇。",
+      },
+    ],
+  },
 ];
+
+export function isFunded(project: SupportProject): boolean {
+  return project.raisedAmount >= project.targetAmount;
+}
+
+export function fundPercent(project: SupportProject): number {
+  if (project.targetAmount <= 0) return 0;
+  return Math.min(100, Math.round((project.raisedAmount / project.targetAmount) * 100));
+}
 
 export function addOnsForTier(tierId: TierId): AddOnBenefit[] {
   const rank = TIER_RANK[tierId];

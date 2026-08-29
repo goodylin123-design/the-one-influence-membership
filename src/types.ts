@@ -45,6 +45,8 @@ export interface SupportProject {
   qualityTier: QualityTier;
   maturityYears: number;
   maturityLabel: string;
+  targetAmount: number;
+  raisedAmount: number;
   description: string;
   longDescription: string;
   stages: ProjectStage[];

@@ -4,6 +4,10 @@ export function formatFee(n: number): string {
   return `NT$${n.toLocaleString("zh-TW")}`;
 }
 
+export function formatWan(n: number): string {
+  return `NT$${(n / 10000).toLocaleString("zh-TW")}萬`;
+}
+
 export function formatDate(iso: string): string {
   const d = new Date(iso);
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
